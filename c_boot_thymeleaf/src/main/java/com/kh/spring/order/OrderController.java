@@ -1,44 +1,51 @@
 package com.kh.spring.order;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
-import javax.servlet.http.HttpSession;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
-import com.kh.spring.food.Food;
+import lombok.RequiredArgsConstructor;
 
-// 1. order-form.html(메뉴판)을 요청하는 url은 GET :/order/order-form이다
-// 2. 음식의 가격은 피자 30000원, 햄버거 5000원, 회 : 20000원, 치킨: 18000원
-// 3. receipt.html에서는 사용자가 선택한 메뉴의 이름과 가격, 결제금액이 출력되어야 한다.
 @Controller
+@RequestMapping("order")
+@RequiredArgsConstructor
 public class OrderController {
 
-	@GetMapping("thymeleaf/order/order-form")
-	public void makeReceipt(Model model, HttpSession session) {
-		Food food = new Food();
-		Map<String, Object> foodList = new LinkedHashMap();
-		
-		foodList.put("피자","30000");
-		foodList.put("햄버거","5000");
-		foodList.put("회","20000");
-		foodList.put("치킨","18000");
-		
-		model.addAttribute("foodList", foodList);
-
-	}
-	
-	@PostMapping("thymeleaf/order/receipt")
-	public void aa() {
-		
-	}
-	
+   private final OrderService orderService;
+   
+   @GetMapping("order-form")
+   public void orderForm() {}
+   
+   @PostMapping("order")
+   public String order(@RequestParam(required = false, name = "food") 
+                  Optional <List<String>> foods
+                  ,Model model) {
+      
+	   //Optional을 사용하지 않고 List<String>으로 매개변수를 전달받을 때 코드
+	   //foods = foods==null?new ArrayList<String>();
+      Map<String,Object> commandMap = orderService.order(foods.orElseGet(()->List.of()));
+      model.addAllAttributes(commandMap);
+      return "order/receipt";
+   }
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
 }
